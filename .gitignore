@@ -1,0 +1,29 @@
+# secrets — NEVER commit
+.env
+.env.*
+!.env.example
+*.key
+service-account*.json
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# vector store / knowledge (often private; keep out of git by default)
+backend/data/faiss_index/
+backend/data/knowledge/*
+!backend/data/knowledge/.gitkeep
+
+# node / next
+node_modules/
+.next/
+out/
+npm-debug.log*
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/
