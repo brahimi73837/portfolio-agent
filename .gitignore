@@ -27,3 +27,7 @@ npm-debug.log*
 .DS_Store
 .idea/
 .vscode/
+
+# personal / for-Brahim-only docs (not for public repo)
+MANUAL_SETUP.md
+KNOWLEDGE_QUESTIONS.md
