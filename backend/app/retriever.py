@@ -43,8 +43,13 @@ class KnowledgeRetriever:
         return get_embeddings().embed_query(text)
 
     def search_by_vector(self, vector: list[float], k: int | None = None) -> list[Document]:
+        # MMR (maximal marginal relevance) instead of plain similarity: it diversifies
+        # the retrieved chunks so broad questions ("his projects") surface DISTINCT
+        # entries rather than several near-duplicate summary passages.
         k = k or get_settings().retriever_top_k
-        return self._store.similarity_search_by_vector(vector, k=k)
+        return self._store.max_marginal_relevance_search_by_vector(
+            vector, k=k, fetch_k=max(k * 4, 20), lambda_mult=0.5
+        )
 
     @staticmethod
     def format_context(docs: list[Document]) -> str:

@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     thinking_budget: int = 0
 
     # --- Retrieval ---
-    retriever_top_k: int = 4
+    retriever_top_k: int = 6
     kb_dir: str = "data/knowledge"
     faiss_dir: str = "data/faiss_index"
 

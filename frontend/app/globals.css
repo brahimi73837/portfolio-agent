@@ -2,18 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --accent: #ff7a45;
+}
+
 html,
 body {
   height: 100%;
 }
 
 body {
-  @apply bg-neutral-50 text-neutral-900 antialiased;
+  @apply bg-ink text-cream font-sans antialiased;
+  position: relative;
+  overflow-x: hidden;
 }
 
-/* typing indicator dots */
+/* Atmosphere: a warm signal glow up top + a faint engineering dot-grid.
+   Fixed layer so it stays put while the chat scrolls. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60rem 40rem at 50% -10%, rgba(255, 122, 69, 0.13), transparent 60%),
+    radial-gradient(40rem 30rem at 90% 10%, rgba(255, 122, 69, 0.05), transparent 70%),
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 26px 26px;
+}
+
+/* Subtle film grain so flat black gets texture and depth. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Custom scrollbar to match the theme. */
+*::-webkit-scrollbar {
+  width: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
+}
+
+/* Typing indicator dots */
 .dot {
-  @apply inline-block h-2 w-2 rounded-full bg-neutral-400;
+  @apply inline-block h-1.5 w-1.5 rounded-full;
+  background: var(--accent);
   animation: blink 1.4s infinite both;
 }
 .dot:nth-child(2) {
@@ -27,8 +69,30 @@ body {
   80%,
   100% {
     opacity: 0.2;
+    transform: translateY(0);
   }
   40% {
     opacity: 1;
+    transform: translateY(-2px);
   }
+}
+
+/* Markdown answer styling on dark. */
+.answer-prose {
+  @apply text-[0.92rem] leading-relaxed text-cream/90;
+}
+.answer-prose p {
+  @apply my-1.5;
+}
+.answer-prose ul {
+  @apply my-1.5 list-disc space-y-1 pl-4;
+}
+.answer-prose a {
+  @apply text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent;
+}
+.answer-prose strong {
+  @apply font-semibold text-cream;
+}
+.answer-prose code {
+  @apply rounded bg-white/10 px-1 py-0.5 font-mono text-[0.82em];
 }
