@@ -81,8 +81,10 @@ def main() -> int:
         return 1
 
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800,
-        chunk_overlap=120,
+        # Larger chunks keep each project (its description AND its links) together in
+        # one chunk, so "what's the link to project X" retrieves the link reliably.
+        chunk_size=1200,
+        chunk_overlap=150,
         separators=["\n## ", "\n### ", "\n\n", "\n", ". ", " "],
     )
     chunks = splitter.split_documents(docs)

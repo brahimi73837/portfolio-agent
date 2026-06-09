@@ -10,11 +10,10 @@ from __future__ import annotations
 import logging
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-from langchain_core.output_parsers import StrOutputParser
 from langchain_google_vertexai import ChatVertexAI
 
 from .config import get_settings
-from .prompts import SYSTEM_PROMPT
+from .prompts import SYSTEM_PROMPT, TRUNCATION_NOTE
 
 log = logging.getLogger("portfolio.chain")
 
@@ -62,9 +61,16 @@ def _build_messages(context: str, history: list[dict], question: str) -> list:
 def generate_answer(context: str, history: list[dict], question: str) -> str:
     """Run the chain and return the assistant's reply text.
 
-    LCEL: (messages) | llm | StrOutputParser(). If a LangChain LLM cache is
-    configured (see main.py), identical prompts are served from it automatically.
+    We invoke the model directly (instead of piping through StrOutputParser) so we
+    can read the finish reason: if Gemini hit the max-output-token cap, the answer
+    was cut off, and we append a clear note. A LangChain Redis LLM cache (see
+    main.py) still serves identical prompts automatically.
     """
     messages = _build_messages(context, history, question)
-    chain = get_llm() | StrOutputParser()
-    return chain.invoke(messages).strip()
+    response = get_llm().invoke(messages)
+    text = (response.content or "").strip()
+
+    finish = str(response.response_metadata.get("finish_reason", "")).upper()
+    if "MAX_TOKEN" in finish or "LENGTH" in finish:
+        text = (text + TRUNCATION_NOTE) if text else TRUNCATION_NOTE.strip()
+    return text

@@ -50,7 +50,13 @@ EMPTY_INPUT_REPLY = "Ask me anything about Brahim — his projects, skills, or e
 
 # Used when the per-IP rate limit trips.
 RATE_LIMITED_REPLY = (
-    "You're sending messages a little fast ⏳ — give it a few seconds and try again."
+    "You've sent a lot of messages! The API rate limit has been reached. "
+    "Please wait a minute before trying again."
+)
+
+# Appended to an answer that Gemini cut off at the max-output-token cap.
+TRUNCATION_NOTE = (
+    "\n\n*The response was too long and got cut off. Try asking a more specific question.*"
 )
 
 # Used when the global daily budget circuit-breaker trips.
