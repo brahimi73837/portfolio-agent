@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Brahim Elkhattabi — Portfolio</title>
+    <meta name="description" content="Redirecting to Brahim Elkhattabi's interactive AI portfolio." />
+
+    <!-- The deployed app. Update this one line if the URL ever changes. -->
+    <meta http-equiv="refresh" content="0; url=https://web-328999069793.us-central1.run.app" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #0a0a0b;
+        --cream: #ece7de;
+        --muted: #8c8b85;
+        --accent: #ff7a45;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        background: var(--ink);
+        color: var(--cream);
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        overflow: hidden;
+        position: relative;
+      }
+      /* warm glow + dot grid, matching the app */
+      body::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(50rem 32rem at 50% -10%, rgba(255, 122, 69, 0.16), transparent 60%),
+          radial-gradient(circle at center, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        background-size: 100% 100%, 24px 24px;
+      }
+      .card { position: relative; z-index: 1; animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+      .badge {
+        width: 64px; height: 64px; margin: 0 auto 1.5rem;
+        display: grid; place-items: center;
+        border-radius: 18px;
+        background: linear-gradient(135deg, var(--accent), #e85d2a);
+        color: var(--ink);
+        font-family: "Instrument Serif", serif;
+        font-size: 2rem;
+        box-shadow: 0 0 40px rgba(255, 122, 69, 0.35);
+      }
+      h1 { font-family: "Instrument Serif", serif; font-size: 2rem; font-weight: 400; letter-spacing: -0.01em; }
+      h1 .accent { color: var(--accent); font-style: italic; }
+      p { margin-top: 0.75rem; color: var(--muted); font-size: 0.8rem; letter-spacing: 0.02em; }
+      .spinner {
+        margin: 1.75rem auto 0;
+        width: 26px; height: 26px;
+        border: 2px solid rgba(255, 255, 255, 0.12);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(255, 122, 69, 0.4); }
+      .fallback { margin-top: 1.5rem; font-size: 0.75rem; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <div class="badge">BE</div>
+      <h1>Opening <span class="accent">Brahim's portfolio</span></h1>
+      <p>Redirecting to the live AI assistant…</p>
+      <div class="spinner" aria-hidden="true"></div>
+      <p class="fallback">
+        Not redirected?
+        <a href="https://web-328999069793.us-central1.run.app">Click here</a>
+      </p>
+    </main>
+
+    <!-- Belt-and-suspenders: JS redirect in case meta refresh is blocked. -->
+    <script>
+      setTimeout(function () {
+        window.location.replace("https://web-328999069793.us-central1.run.app");
+      }, 400);
+    </script>
+  </body>
+</html>
