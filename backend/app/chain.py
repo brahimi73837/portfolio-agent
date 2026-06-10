@@ -8,6 +8,7 @@ parses the output to a plain string.
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_google_vertexai import ChatVertexAI
@@ -16,6 +17,12 @@ from .config import get_settings
 from .prompts import SYSTEM_PROMPT, TRUNCATION_NOTE
 
 log = logging.getLogger("portfolio.chain")
+
+
+@dataclass
+class Generation:
+    text: str
+    truncated: bool  # True if the model hit the output-token cap mid-answer
 
 _llm: ChatVertexAI | None = None
 
@@ -58,19 +65,21 @@ def _build_messages(context: str, history: list[dict], question: str) -> list:
     return messages
 
 
-def generate_answer(context: str, history: list[dict], question: str) -> str:
-    """Run the chain and return the assistant's reply text.
+def generate_answer(context: str, history: list[dict], question: str) -> Generation:
+    """Run the chain and return the assistant's reply.
 
     We invoke the model directly (instead of piping through StrOutputParser) so we
     can read the finish reason: if Gemini hit the max-output-token cap, the answer
-    was cut off, and we append a clear note. A LangChain Redis LLM cache (see
-    main.py) still serves identical prompts automatically.
+    was cut off, we append a clear note, and we flag it so the caller skips caching
+    a partial answer. A LangChain Redis LLM cache (see main.py) still serves
+    identical prompts automatically.
     """
     messages = _build_messages(context, history, question)
     response = get_llm().invoke(messages)
     text = (response.content or "").strip()
 
     finish = str(response.response_metadata.get("finish_reason", "")).upper()
-    if "MAX_TOKEN" in finish or "LENGTH" in finish:
+    truncated = "MAX_TOKEN" in finish or "LENGTH" in finish
+    if truncated:
         text = (text + TRUNCATION_NOTE) if text else TRUNCATION_NOTE.strip()
-    return text
+    return Generation(text=text, truncated=truncated)

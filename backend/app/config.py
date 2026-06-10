@@ -32,7 +32,9 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
 
     # --- Generation ---
-    max_output_tokens: int = 512
+    # Gemini 2.5 Flash spends "thinking" tokens from this budget before writing the
+    # answer, so we keep it generous to avoid cutting answers off mid-sentence.
+    max_output_tokens: int = 2048
     temperature: float = 0.3
     thinking_budget: int = 0
 

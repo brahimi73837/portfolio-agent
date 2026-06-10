@@ -157,12 +157,13 @@ def chat(req: ChatRequest, request: Request):
     try:
         docs = retriever.search_by_vector(query_vec)
         context = retriever.format_context(docs)
-        answer = generate_answer(context, history, question)
+        gen = generate_answer(context, history, question)
     except Exception as exc:  # noqa: BLE001
         log.error("generation error: %s", exc)
         return ChatResponse(reply=prompts.LLM_ERROR_REPLY, source="error")
 
-    # 8) populate caches for next time
-    cache.exact_set(question, answer)
-    cache.semantic_set(query_vec, answer)
-    return ChatResponse(reply=answer, source="model")
+    # 8) populate caches for next time — but never cache a cut-off answer.
+    if not gen.truncated:
+        cache.exact_set(question, gen.text)
+        cache.semantic_set(query_vec, gen.text)
+    return ChatResponse(reply=gen.text, source="model")

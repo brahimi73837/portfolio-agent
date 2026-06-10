@@ -22,7 +22,7 @@ def _answer(question: str) -> str:
     r = get_retriever()
     vec = r.embed_query(question)
     ctx = r.format_context(r.search_by_vector(vec))
-    return generate_answer(ctx, [], question)
+    return generate_answer(ctx, [], question).text
 
 
 def test_grounded_answer_mentions_known_fact():
