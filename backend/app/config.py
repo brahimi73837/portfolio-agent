@@ -49,8 +49,8 @@ class Settings(BaseSettings):
     semantic_cache_enabled: bool = True
 
     # --- Abuse / cost guards ---
-    rate_limit_per_minute: int = 8
-    rate_limit_per_day_per_ip: int = 60
+    rate_limit_per_minute: int = 15
+    rate_limit_per_day_per_ip: int = 80
     global_daily_request_cap: int = 800
     max_input_chars: int = 1000
 
