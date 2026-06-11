@@ -1,38 +1,74 @@
-# Brahim — AI Portfolio Chatbot
+# Portfolio Agent
 
-An interactive, recruiter-facing chatbot that replaces a static PDF resume. Ask it about Brahim's work,
-projects, and skills and it answers — grounded in a curated knowledge base, fast, and cheap to run.
+An interactive AI chatbot that answers recruiter questions about me (Brahim Elkhattabi) instead of a static PDF resume. Ask it about my projects, skills, and experience and it replies in seconds, grounded in a curated knowledge base.
 
-**🔴 Live:** https://web-328999069793.us-central1.run.app
-&nbsp;·&nbsp; API: https://api-5iuake3yoq-uc.a.run.app/health
+**Live:** https://brahimi73837.github.io/portfolio-agent/
 
-It is also a demonstration of the skills it describes: **RAG over vector embeddings, LangChain orchestration,
-Gemini 2.5 Flash, Redis caching, guardrails, and a ≈ $0 Google Cloud deployment.**
+It is also a working demo of the things it talks about: retrieval-augmented generation, LangChain orchestration, prompt/response caching, abuse protection, and a near zero-cost Google Cloud deployment.
 
 ## Stack
 
 | Layer | Choice |
-|---|---|
-| Frontend | Next.js (App Router, TypeScript), minimalist chat UI |
-| Backend | Python + FastAPI + LangChain |
-| LLM | Gemini 2.5 Flash (via Gemini API free tier) |
-| Embeddings / retrieval | `gemini-embedding-001` + FAISS vector store |
-| Cache / rate limit / budget | Redis on one free-tier `e2-micro` VM |
-| Hosting | Google Cloud Run (×2) + Artifact Registry + Secret Manager |
+|-------|--------|
+| Frontend | Next.js (App Router, TypeScript), Tailwind |
+| Backend | Python, FastAPI, LangChain |
+| Model | Gemini 2.5 Flash on Vertex AI |
+| Retrieval | `text-embedding-005` + FAISS vector store |
+| Cache / rate limiting | Redis on a free-tier Compute Engine VM |
+| Hosting | Google Cloud Run (web + api), Artifact Registry, Secret Manager |
 
-## How it's built (spec-driven, GitHub Spec Kit)
+## How it works
 
-- Principles: [.specify/memory/constitution.md](.specify/memory/constitution.md)
-- Specification: [specs/001-ai-portfolio-chatbot/spec.md](specs/001-ai-portfolio-chatbot/spec.md)
-- Technical plan: [specs/001-ai-portfolio-chatbot/plan.md](specs/001-ai-portfolio-chatbot/plan.md)
-- **Human setup checklist: [MANUAL_SETUP.md](MANUAL_SETUP.md)**
-- Tutorial build guide: [docs/](docs/) (written like a step-by-step course)
+A recruiter's question flows through a small, deliberately cheap-first pipeline in the `api` service:
 
-## Quick start
+```
+rate limit  ->  input guard  ->  exact cache  ->  embed once
+            ->  semantic cache  ->  daily budget  ->  retrieve + generate  ->  cache
+```
 
-See [MANUAL_SETUP.md](MANUAL_SETUP.md) for accounts/keys, then [docs/01-local-setup.md](docs/01-local-setup.md)
-to run locally, and [docs/07-deploy-cloud-run.md](docs/07-deploy-cloud-run.md) to deploy.
+- **Grounded answers.** The question is embedded, the most relevant chunks of the knowledge base are retrieved from FAISS (using MMR for diversity), and the model answers only from that context. If the answer is not in the knowledge base, it says so instead of guessing.
+- **Guardrails.** Off-topic, sensitive, or prompt-injection inputs are deflected. The bot only talks about my professional background and never exposes its instructions.
+- **Caching.** Identical and semantically similar questions are served from Redis without a new model call. The knowledge-base version is part of every cache key, so updating it invalidates stale answers automatically.
+- **Cost control.** Per-IP rate limits plus a global daily cap stop anyone from draining credits. Cloud Run scales to zero, so idle cost is nothing.
+- **Slash commands.** `/projects`, `/skills`, `/contact`, `/github`, and more return instant pre-built answers with no model call.
 
-> Status: **Deployed & live.** Built end-to-end (backend, frontend, RAG, caching, guardrails, infra) and
-> running on Google Cloud. Replace `backend/data/knowledge/brahim.md` with your real bio
-> (see [KNOWLEDGE_QUESTIONS.md](KNOWLEDGE_QUESTIONS.md)), re-run `scripts/ingest.py`, and redeploy `api`.
+## Run it locally
+
+Backend:
+
+```bash
+cd backend
+uv venv --python 3.12 .venv
+uv pip install --python .venv/bin/python -r requirements.txt
+cp .env.example .env
+.venv/bin/python scripts/ingest.py
+.venv/bin/python -m uvicorn app.main:app --reload --port 8000
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm install
+echo "BACKEND_URL=http://localhost:8000" > .env
+npm run dev   # http://localhost:3000
+```
+
+Tests:
+
+```bash
+cd backend && .venv/bin/python -m pytest tests/unit -q
+```
+
+## Knowledge base
+
+The bot answers from `backend/data/knowledge/brahim.md`. Edit that file and re-run `scripts/ingest.py` to rebuild the index, then redeploy the `api` service.
+
+## Project layout
+
+```
+backend/    FastAPI + LangChain (retrieval, caching, guardrails, rate limiting)
+frontend/   Next.js chat UI and a server proxy that forwards the client IP
+specs/      Specification and implementation plan (built spec-first)
+pages/      GitHub Pages redirect to the live app
+```

@@ -31,3 +31,6 @@ npm-debug.log*
 # personal / for-Brahim-only docs (not for public repo)
 MANUAL_SETUP.md
 KNOWLEDGE_QUESTIONS.md
+
+# tooling / editor
+.claude/
